@@ -13,31 +13,45 @@ int main()
 {
 	Rectifier rct("5m2.txt");
 	cv::VideoCapture vcl(0), vcr(1);
-	int nod = 128;
+	int nod = 96;
 	int idx = 0;
 	std::string wdir = "";
-	auto sm = cv::StereoBM::create(nod, 21);
+	//std::string rdir = "d:/wires/2017-03-02 09.12.49/";
+	std::string rdir = "d:/wires/2017-03-02 09.14.25/";
+	auto sm = cv::StereoBM::create(nod, 15);
 	//auto sm = cv::StereoSGBM::create(5, nod, 15);
 	int k;
 	do {
 		cv::Mat left, right, left_g, right_g, left_r, right_r, disp, disp8;
-		vcl >> left;
-		vcr >> right;
-		cv::cvtColor(left, left_g, CV_RGB2GRAY);
-		rct.rectify(left_g, left_r, 0);
-		//cv::equalizeHist(left_r, left_r);
+		if (rdir == "") {
+			vcl >> left;
+			vcr >> right;
+			cv::cvtColor(left, left_g, CV_RGB2GRAY);
+			rct.rectify(left_g, left_r, 0);
+			//cv::equalizeHist(left_r, left_r);
 
-		cv::cvtColor(right, right_g, CV_RGB2GRAY);
-		//cv::flip(right_g, right_g, -1);
-		rct.rectify(right_g, right_r, 1);
-		//cv::equalizeHist(right_r, right_r);
+			cv::cvtColor(right, right_g, CV_RGB2GRAY);
+			//cv::flip(right_g, right_g, -1);
+			rct.rectify(right_g, right_r, 1);
+			//cv::equalizeHist(right_r, right_r);
 
-		if (wdir != "") {
+			if (wdir != "") {
+				char buf[32];
+				sprintf_s(buf, "%04d", idx++);
+				cv::imwrite(wdir + buf + "l.png", left_r);
+				cv::imwrite(wdir + buf + "r.png", right_r);
+			}
+		}
+		else {
 			char buf[32];
 			sprintf_s(buf, "%04d", idx++);
-			cv::imwrite(wdir + buf + "l.png", left_r);
-			cv::imwrite(wdir + buf + "r.png", right_r);
+			left_r = cv::imread(rdir + buf + "l.png");
+			right_r = cv::imread(rdir + buf + "r.png");
+			if (left_r.empty() || right_r.empty()) { idx = 0; continue; }
+			cv::cvtColor(left_r, left_r, CV_RGB2GRAY);
+			cv::cvtColor(right_r, right_r, CV_RGB2GRAY);
 		}
+
 		cv::imshow("Left", left_r);
 		cv::imshow("Right", right_r);
 
