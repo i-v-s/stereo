@@ -11,7 +11,7 @@
 
 int main()
 {
-	Rectifier rct("log2s.txt");
+	Rectifier rct("5m2.txt");
 	cv::VideoCapture vcl(0), vcr(1);
 	int nod = 128;
 	int idx = 0;
@@ -28,22 +28,22 @@ int main()
 		//cv::equalizeHist(left_r, left_r);
 
 		cv::cvtColor(right, right_g, CV_RGB2GRAY);
-		cv::flip(right_g, right_g, -1);
+		//cv::flip(right_g, right_g, -1);
 		rct.rectify(right_g, right_r, 1);
 		//cv::equalizeHist(right_r, right_r);
 
 		if (wdir != "") {
 			char buf[32];
 			sprintf_s(buf, "%04d", idx++);
-			//cv::imwrite()
-
+			cv::imwrite(wdir + buf + "l.png", left_r);
+			cv::imwrite(wdir + buf + "r.png", right_r);
 		}
 		cv::imshow("Left", left_r);
 		cv::imshow("Right", right_r);
 
 		sm->compute(left_r, right_r, disp);
 		disp.convertTo(disp8, CV_8U, 255 / (nod * 16.));
-		//cv::
+
 		cv::imshow("Disparity", disp8);
 		k = cv::waitKey(1);
 		switch (k) {
@@ -56,7 +56,7 @@ int main()
 			time(&rawtime);
 			localtime_s(&timeinfo, &rawtime);
 
-			strftime(buffer, 128, "d:/wires/%Y-%m-%d %I:%M:%S/", &timeinfo);
+			strftime(buffer, 128, "d:/wires/%Y-%m-%d %I.%M.%S/", &timeinfo);
 			if (CreateDirectoryA(buffer, NULL) || ERROR_ALREADY_EXISTS == GetLastError())
 				wdir = buffer;
 			break;
