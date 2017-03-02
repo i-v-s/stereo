@@ -9,9 +9,9 @@
 
 int main()
 {
-	Rectifier rct("log2.txt");
-	cv::VideoCapture vcl(1), vcr(0);
-	int nod = 256;
+	Rectifier rct("log2s.txt");
+	cv::VideoCapture vcl(0), vcr(1);
+	int nod = 128;
 	auto sm = cv::StereoBM::create(nod, 21);
 	//auto sm = cv::StereoSGBM::create(5, nod, 15);
 	do {
@@ -20,8 +20,13 @@ int main()
 		vcr >> right;
 		cv::cvtColor(left, left_g, CV_RGB2GRAY);
 		rct.rectify(left_g, left_r, 0);
+		//cv::equalizeHist(left_r, left_r);
+
 		cv::cvtColor(right, right_g, CV_RGB2GRAY);
+		cv::flip(right_g, right_g, -1);
 		rct.rectify(right_g, right_r, 1);
+		//cv::equalizeHist(right_r, right_r);
+
 		cv::imshow("Left", left_r);
 		cv::imshow("Right", right_r);
 
